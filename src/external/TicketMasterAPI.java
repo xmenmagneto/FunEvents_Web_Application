@@ -17,13 +17,13 @@ import org.json.JSONObject;
 import entity.Item.ItemBuilder;
 import entity.Item;
 
-public class TicketMasterAPI {
+public class TicketMasterAPI implements ExternalAPI{
 	private static final String API_HOST = "app.ticketmaster.com";
 	private static final String SEARCH_PATH = "/discovery/v2/events.json";
 	private static final String DEFAULT_TERM = "";  // default keyword
 	private static final String API_KEY = "mO5DezGkYY7oG5soSQEph8uL0sCQASYr";
 
-	
+	@Override
 	public List<Item> search(double lat, double lon, String term) {
 		// create a base url, based on API_HOST and SEARCH_PATH
 		String url = "http://" + API_HOST + SEARCH_PATH;
@@ -171,9 +171,9 @@ public class TicketMasterAPI {
 	private String getImageUrl(JSONObject event) throws JSONException {
 		//...
 		if (!event.isNull("images")) {
-			JSONArray images = event.getJSONArray("images");
-			if (images.length() >= 1) {
-				return images.getJSONObject(0).getString("url");
+			JSONArray imagesArray = event.getJSONArray("images");
+			if (imagesArray.length() >= 1) {
+				return getStringFieldOrNull(imagesArray.getJSONObject(0), "url" );
 			}
 		}
 		return null;
@@ -181,9 +181,15 @@ public class TicketMasterAPI {
 
 	private Set<String> getCategories(JSONObject event) throws JSONException {
 		Set<String> categories = new HashSet<>();
-		JSONArray classifications = (JSONArray) event.get("classifications");
-		//...
-		return categories;
+        if (!event.isNull("classifications")) {
+        		JSONArray classifications = (JSONArray) event.get("classifications");
+        		for (int j = 0; j < classifications.length(); j++) {
+        			JSONObject classification = classifications.getJSONObject(j);
+        			JSONObject segment = classification.getJSONObject("segment");
+        			categories.add(segment.getString("name"));
+        		}
+		}
+        return categories;
 	}
 
 	private String getDescription(JSONObject event) throws JSONException {

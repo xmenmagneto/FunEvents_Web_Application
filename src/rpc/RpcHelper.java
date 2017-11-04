@@ -1,7 +1,9 @@
 package rpc;
 
+import java.io.BufferedReader;
 import java.io.PrintWriter;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONArray;
@@ -34,5 +36,21 @@ public class RpcHelper {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static JSONObject readJsonObject(HttpServletRequest request) {
+		StringBuffer jb = new StringBuffer();
+		String line = null;
+		try {
+			BufferedReader reader = request.getReader();
+			while ((line = reader.readLine()) != null) {
+				jb.append(line);
+			}
+			reader.close();
+			return new JSONObject(jb.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
