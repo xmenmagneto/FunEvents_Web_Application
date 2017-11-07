@@ -11,11 +11,12 @@ import java.util.Set;
 
 import db.DBConnection;
 import entity.Item;
+import entity.Item.ItemBuilder;
 import external.ExternalAPI;
 import external.ExternalAPIFactory;
 
 public class MySQLConnection implements DBConnection{
-	private Connection conn; //和mamp链接
+	private Connection conn; //和Mamp链接
 
 	//constructor
 	public MySQLConnection() {
@@ -85,7 +86,7 @@ public class MySQLConnection implements DBConnection{
 			String sql = "SELECT item_id from history WHERE user_id = ?";
 			PreparedStatement statement = conn.prepareStatement(sql);
 			statement.setString(1, userId);
-			//rs 存的是key value pair
+			//ResultSet 存的是key value pair
 			ResultSet rs = statement.executeQuery();
 			while (rs.next()) {
 				String itemId = rs.getString("item_id");
@@ -113,17 +114,16 @@ public class MySQLConnection implements DBConnection{
 				PreparedStatement statement = conn.prepareStatement(sql);
 				statement.setString(1, itemId);
 				ResultSet rs = statement.executeQuery();
-				Item.ItemBuilder builder = new Item.ItemBuilder();
+				ItemBuilder builder = new ItemBuilder();
 
 				// Because itemId is unique and given one item id there should
-				//item_id是items table的primary key
 				// have
 				// only one result returned.  只会返回一行，所以不需要while
 				if (rs.next()) {
 					builder.setItemId(rs.getString("item_id"));
 					builder.setName(rs.getString("name"));
 					builder.setCity(rs.getString("city"));
-					builder.setState(rs.getString("state"));
+					builder.setState(rs.getString("state")); 
 					builder.setCountry(rs.getString("country"));
 					builder.setZipcode(rs.getString("zipcode"));
 					builder.setRating(rs.getDouble("rating"));
@@ -170,9 +170,10 @@ public class MySQLConnection implements DBConnection{
 		}
 		return categories;
 	}
+	
 
-	@Override
 	//每次搜索都要存在数据库中，从而收藏搜索过的活动
+	@Override
 	public List<Item> searchItems(String userId, double lat, double lon, String term) {
 		// Connect to external API
 		ExternalAPI api = ExternalAPIFactory.getExternalAPI(); // moved here
@@ -238,7 +239,13 @@ public class MySQLConnection implements DBConnection{
 		}
 		String name = "";
 		try {
-			
+			String sql = "SELECT first_name, last_name from users WHERE user_id = ?";
+			PreparedStatement statement = conn.prepareStatement(sql);
+			statement.setString(1, userId);
+			ResultSet rs = statement.executeQuery();
+			if (rs.next()) {
+				name += String.join(" ", rs.getString("first_name"), rs.getString("last_name"));
+			}	
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
@@ -251,7 +258,14 @@ public class MySQLConnection implements DBConnection{
 			return false;
 		}
 		try {
-
+			String sql = "SELECT user_id from users WHERE user_id = ? and password = ?";
+			PreparedStatement statement = conn.prepareStatement(sql);
+			statement.setString(1, userId);
+			statement.setString(2, password);
+			ResultSet rs = statement.executeQuery();
+			if (rs.next()) {
+				return true;
+			}
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}

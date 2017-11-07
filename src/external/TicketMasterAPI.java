@@ -39,31 +39,33 @@ public class TicketMasterAPI implements ExternalAPI{
 		String query = String.format("apikey=%s&geoPoint=%s&keyword=%s", API_KEY, geoHash, term);
 		
 		try {
-		// Create a HTTP connection between your Java application and TicketMaster based on url
-		HttpURLConnection connection = (HttpURLConnection) new URL(url + "?" + query).openConnection();
-		// Set request method to GET
-		connection.setRequestMethod("GET"); //get 请求
-
-		// Send request to TicketMaster and get response, response code could be returned directly
-		// response body is saved in InputStream of connection.
-		int responseCode = connection.getResponseCode(); //发请求+返回结果(status code)
-		System.out.println("\nSending 'GET' request to URL : " + url + "?" + query);
-		System.out.println("Response Code : " + responseCode);
-
-		// Now read response body to get events data, 存在InputStream of connection
-		//parse/clean: 在string上做比InputStream容易，所以copy过来
-		BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-		String inputLine;
-		StringBuilder response = new StringBuilder();  //本地的StringBuilder
-		while ((inputLine = in.readLine()) != null) {  //read line by line
-			response.append(inputLine);
-		}
-		in.close();
-
-		JSONObject responseJson = new JSONObject(response.toString());
-		             JSONObject object= (JSONObject) responseJson.get("_embedded");
-		             JSONArray array= (JSONArray) object.get("events");
-		return getItemList(array);
+			// Create a HTTP connection between your Java application and TicketMaster based on url
+			HttpURLConnection connection = (HttpURLConnection) new URL(url + "?" + query).openConnection();
+			// Set request method to GET
+			connection.setRequestMethod("GET"); //get 请求
+	
+			// Send request to TicketMaster and get response, response code could be returned directly
+			// response body is saved in InputStream of connection.
+			int responseCode = connection.getResponseCode(); //发请求+返回结果(status code)
+			System.out.println("\nSending 'GET' request to URL : " + url + "?" + query);
+			System.out.println("Response Code : " + responseCode);
+	
+			// Now read response body to get events data, 存在InputStream of connection
+			//parse/clean: 在string上做比InputStream容易，所以copy过来
+			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			String inputLine;
+			StringBuilder response = new StringBuilder();  //本地的StringBuilder
+			while ((inputLine = in.readLine()) != null) {  //read line by line
+				response.append(inputLine);
+			}
+			in.close();
+	
+			JSONObject responseJson = new JSONObject(response.toString());
+			JSONObject object = (JSONObject) responseJson.get("_embedded");
+			JSONArray array = (JSONArray) object.get("events");
+			
+			//return List<Item>
+			return getItemList(array);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -96,7 +98,7 @@ public class TicketMasterAPI implements ExternalAPI{
 
 
 
-	// Convert JSONArray to a list of item objects.
+	// Convert JSONArray to a List of item objects.
 	private List<Item> getItemList(JSONArray events) throws JSONException {
 		List<Item> itemList = new ArrayList<>();
 	
