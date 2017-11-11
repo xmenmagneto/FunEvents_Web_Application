@@ -1,3 +1,4 @@
+//anonymous function， 只会被call 一次
 (function() {
 	/**
 	 * Variables
@@ -6,7 +7,9 @@
 	var lng = 41.8781;
 	var lat = -87.6298;
 	
-	//initialization
+	/**
+	 * Initialize
+	 */
 	function init() {
 		// Register event listeners
 		$('nearby-btn').addEventListener('click', loadNearbyItems);
@@ -18,7 +21,7 @@
 
 	
 	function initGeoLocation() {
-		if (navigator.geolocation) { //浏览器自带
+		if (navigator.geolocation) { //浏览器可以给
 			navigator.geolocation.getCurrentPosition(onPositionUpdated,
 					onLoadPositionFailed, {
 						maximumAge : 60000
@@ -88,13 +91,14 @@
 	    }
 	  };
 
-	  
+	  //没有回传内容
 	  //api call失败, backend没有穿回来，中间出现的情况
 	  xhr.onerror =function () {
 	    console.error("The request couldn't be completed.");
 	    errorHandler();
 	   };
 
+	  //把data送出去
 	  if (data === null) {//没有传资料进来
 	    xhr.send();
 	  } else {
@@ -115,7 +119,7 @@
 		// The request parameters
 		var url = './search';
 		var params = 'user_id=' + user_id + '&lat=' + lat + '&lon=' + lng; //之前算出来的
-		var req = JSON.stringify({});
+		var req = JSON.stringify({}); //要送的data
 
 		// display loading message
 		showLoadingMessage('Loading nearby items...');
@@ -124,7 +128,7 @@
 		ajax('GET', url + '?' + params, req,
 		// successful callback
 		function(res) {
-			var items = JSON.parse(res);  //js array
+			var items = JSON.parse(res);  //json string --> json object
 			if (!items || items.length === 0) {
 				showWarningMessage('No nearby item.');
 			} else {
@@ -232,8 +236,9 @@
 				});
 			}
 
-
-	
+	/**
+	 * list items
+	 */
 	//create item list
 	//param items - an array of item JSON objects
 	function listItems(items) {
@@ -248,11 +253,15 @@
 	}
 	
 	
+	
+	
+	/**
+	 * addItem
+	 */
 	//Creating HTML component from json
 	//add item to the list
 	//param: itemList <ul id="item-list"> tag
 	//param: item - the item data(JSON object)
-	
 	function addItem(itemList, item) {
 		var item_id = item.item_id;
 
@@ -276,7 +285,7 @@
 				src : '../images/default.jpg'
 			}))
 		}
-		// section, 创建div
+		// section, 创建div, 空白的
 		var section = $('div', {});
 
 		// title
@@ -356,8 +365,9 @@
 			return document.getElementById(tag);
 		}
 
+		//创建新的
 		var element = document.createElement(tag);
-
+		//set each attribute
 		for ( var option in options) {
 			if (options.hasOwnProperty(option)) {
 				element[option] = options[option];
@@ -398,9 +408,11 @@
 		btn.className += ' active';
 	}
 	
-	//call init()
+	//call init(), 也可以在前面call， 因为有hoisting。只适用于function，variable必须定义后才能用
 	init();
 })();
+
+//这里可以传parameter
 
 
 
