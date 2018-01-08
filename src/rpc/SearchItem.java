@@ -2,7 +2,7 @@
 //after receiving a search request, rpc will parse the request to get userId, longitude, latitude and keyword
 //read data from TicketMaster API based on userId, longitude, latitude and keyword
 //filter the data and store in database
-//render each fun evetn item in front end based on the specific 'favorite' attribute of each item
+//render fun evetn item in web page based on the specific 'favorite' attribute of each item
 package rpc;
 
 import java.io.IOException;
